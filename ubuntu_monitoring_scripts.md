@@ -9,6 +9,10 @@ Keeping the system updated is vital before starting anything on your system. Thi
 apt-get update -y && apt-get full-upgrade -y
 ```
 
+### AIDE Scripts
+Update database - `sudo aideinit`
+Run Scan - `aide -c /etc/aide/aide.conf --check`
+
 ### Configure AIDE
 Cron configuration file - `/etc/crontab`
 
