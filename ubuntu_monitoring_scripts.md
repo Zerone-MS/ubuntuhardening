@@ -32,6 +32,34 @@ sudo nano /etc/aliases
 
 Log file - `/var/log/clamav/clamav-{yyyy-mm-dd}.log`
 
+Cron ClamAV daily run at late night (IST)  - `25 19   * * *   root    /home/ubuntu/scripts/clamscan.sh`
+#### ClamAV Script
+```
+#!/bin/bash
+LOGFILE="/var/log/clamav/clamav-$(date +'%Y-%m-%d').log";
+EMAIL_MSG="Please see the log file attached";
+EMAIL_FROM="clamav@cardse.co";
+EMAIL_TO="archit.jain@onion-pay.com,vivek.sharma@onion-pay.com,jayant.varma@onion-pay.com";
+DIRTOSCAN="/home/ubuntu/NodeJS-QRCode-with-Bank";
+
+
+for S in ${DIRTOSCAN}; do
+ DIRSIZE=$(du -sh "$S" 2>/dev/null | cut -f1);
+ echo "Starting scan of "$S" directory.
+ Directory size: "$DIRSIZE".";
+ clamscan -lri --remove --detect-pua=yes "$S" >> "$LOGFILE";
+ #find /var/log/clamav/ -type f -mtime +30 -exec rm {} \;
+ MALWARE=$(tail "$LOGFILE"|grep Infected|cut -d" " -f3);
+
+  if [ "$MALWARE" -ne "0" ];then
+     echo "$EMAIL_MSG"|mail -a $LOGFILE  -s "Malware Found" -r "$EMAIL_FROM" "$EMAIL_TO";
+  fi
+
+done
+
+exit 0
+```
+
 ### Install awslogs
 Follow this guide - [AWS Document](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/QuickStartEC2Instance.html)
 
@@ -71,3 +99,4 @@ log_stream_name = {instance_id}
 initial_position = start_of_file
 log_group_name = /var/log/aide/aide.log
 ```
+
